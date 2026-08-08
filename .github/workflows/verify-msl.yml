@@ -1,0 +1,29 @@
+name: verify-msl
+
+on:
+  push:
+    paths: ["msl/**", "glsl/**", "scripts/verify-metal.sh"]
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          xcrun -sdk macosx --show-sdk-version
+
+      - name: Compile + link MSL (xcrun metal)
+        run: bash scripts/verify-metal.sh
+        env:
+          ARTIFACT_DIR: ${{ github.workspace }}/metallib
+
+      - name: Upload metallib artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shaders.metallib
+          path: ${{ github.workspace }}/metallib
+          if-no-files-found: error
