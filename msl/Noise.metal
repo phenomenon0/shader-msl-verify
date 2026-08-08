@@ -16,6 +16,13 @@
 #include <metal_stdlib>
 using namespace metal;
 
+// GLSL `mod(x, y)` (floor-based, sign of divisor) — Metal's % / fmod
+// truncate instead, so reimplement the GLSL builtin for float/vec.
+inline float mod4(float x, float y) { return x - y * floor(x / y); }
+inline float2 mod4(float2 x, float y) { return x - y * floor(x / y); }
+inline float3 mod4(float3 x, float y) { return x - y * floor(x / y); }
+inline float4 mod4(float4 x, float y) { return x - y * floor(x / y); }
+
 // ------------------------------------------------------------
 // Ashima 2D simplex (gradient-lab FRAG_HEADER) -- faithful
 // ------------------------------------------------------------
@@ -30,7 +37,7 @@ inline float3 permute(float3 x) {
 }
 
 float snoise2D(float2 v) {
-  const constant float4 C = float4(0.211324865405187, 0.366025403784439,
+  constexpr float4 C = float4(0.211324865405187, 0.366025403784439,
                                    -0.577350269189626, 0.024390243902439);
   float2 i  = floor(v + dot(v, C.yy));
   float2 x0 = v - i + dot(i, C.xx);
@@ -59,15 +66,15 @@ float snoise2D(float2 v) {
 // ------------------------------------------------------------
 // 3D simplex (TSL simplex-noise-3d) -- faithful
 // ------------------------------------------------------------
-inline float permute3(float x) { return mod((x * 34.0 + 10.0) * x, 289.0); }
-inline float4 permute3v(float4 x) { return mod((x * 34.0 + 10.0) * x, 289.0); }
-inline float3 permute3v3(float3 x) { return mod((x * 34.0 + 10.0) * x, 289.0); }
+inline float permute3(float x) { return mod4((x * 34.0 + 10.0) * x, 289.0); }
+inline float4 permute3v(float4 x) { return mod4((x * 34.0 + 10.0) * x, 289.0); }
+inline float3 permute3v3(float3 x) { return mod4((x * 34.0 + 10.0) * x, 289.0); }
 inline float taylorInvSqrt(float r) { return 1.79284291400159 - 0.85373472095314 * r; }
 inline float4 tInvS(float4 r)  { return 1.79284291400159 - 0.85373472095314 * r; }
 
 float simplexNoise3d(float3 v) {
-  const constant float2 C = float2(1.0 / 6.0, 1.0 / 3.0);
-  const constant float4 D = float4(0.0, 0.5, 1.0, 2.0);
+  constexpr float2 C = float2(1.0 / 6.0, 1.0 / 3.0);
+  constexpr float4 D = float4(0.0, 0.5, 1.0, 2.0);
   float3 i  = floor(v + dot(v, C.yyy));
   float3 x0 = v - i + dot(i, C.xxx);
   float3 g = step(x0.yzx, x0.xyz);
@@ -77,7 +84,7 @@ float simplexNoise3d(float3 v) {
   float3 x1 = x0 - i1 + C.xxx;
   float3 x2 = x0 - i2 + 2.0 * C.xxx;
   float3 x3 = x0 - 1.0 + 3.0 * C.xxx;
-  i = mod(i, 289.0);
+  i = mod4(i, 289.0);
   float4 p = permute3v(permute3v(permute3v(i.z + float4(0.0, i1.z, i2.z, 1.0)) +
                                i.y + float4(0.0, i1.y, i2.y, 1.0)) +
                       i.x + float4(0.0, i1.x, i2.x, 1.0));
@@ -116,10 +123,13 @@ float simplexNoise3d(float3 v) {
 inline float fade(float t) {
   return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
+inline float3 fade(float3 t) {
+  return float3(fade(t.x), fade(t.y), fade(t.z));
+}
 
 float perlinNoise3d(float3 P) {
-  float3 Pi0 = mod(floor(P), 289.0);
-  float3 Pi1 = mod(Pi0 + 1.0, 289.0);
+  float3 Pi0 = mod4(floor(P), 289.0);
+  float3 Pi1 = mod4(Pi0 + 1.0, 289.0);
   float3 Pf0 = fract(P);
   float3 Pf1 = Pf0 - 1.0;
   float4 ix = float4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);

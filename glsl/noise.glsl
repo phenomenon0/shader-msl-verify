@@ -11,6 +11,7 @@ float permute(float x){ return mod((x*34.0+10.0)*x, 289.0); }
 float taylorInvSqrt(float r){ return 1.79284291400159 - 0.85373472095314 * r; }
 float mod289(float x){ return mod((x*34.0+10.0)*x, 289.0); }
 float fade(float t){ return t*t*t*(t*(t*6.0-15.0)+10.0); }
+vec3 fade(vec3 t){ return vec3(fade(t.x), fade(t.y), fade(t.z)); }
 
 // grad4: gradient generator for 4D simplex (Ashima/Gustavson)
 vec4 grad4(float j, vec4 ip){
