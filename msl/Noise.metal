@@ -36,7 +36,7 @@ inline float3 permute(float3 x) {
   return mod289_3(((x * 34.0) + 1.0) * x);
 }
 
-float snoise2D(float2 v) {
+inline float snoise2D(float2 v) {
   constexpr float4 C = float4(0.211324865405187, 0.366025403784439,
                                    -0.577350269189626, 0.024390243902439);
   float2 i  = floor(v + dot(v, C.yy));
@@ -72,7 +72,7 @@ inline float3 permute3v3(float3 x) { return mod4((x * 34.0 + 10.0) * x, 289.0); 
 inline float taylorInvSqrt(float r) { return 1.79284291400159 - 0.85373472095314 * r; }
 inline float4 tInvS(float4 r)  { return 1.79284291400159 - 0.85373472095314 * r; }
 
-float simplexNoise3d(float3 v) {
+inline float simplexNoise3d(float3 v) {
   constexpr float2 C = float2(1.0 / 6.0, 1.0 / 3.0);
   constexpr float4 D = float4(0.0, 0.5, 1.0, 2.0);
   float3 i  = floor(v + dot(v, C.yyy));
@@ -127,7 +127,7 @@ inline float3 fade(float3 t) {
   return float3(fade(t.x), fade(t.y), fade(t.z));
 }
 
-float perlinNoise3d(float3 P) {
+inline float perlinNoise3d(float3 P) {
   float3 Pi0 = mod4(floor(P), 289.0);
   float3 Pi1 = mod4(Pi0 + 1.0, 289.0);
   float3 Pf0 = fract(P);
@@ -190,7 +190,7 @@ inline float3 random3(float3 p) {
                           dot(p, float3(113.5, 271.9, 124.6)))) * 43758.5453);
 }
 
-float voronoiNoise3d(float3 p) {
+inline float voronoiNoise3d(float3 p) {
   float3 i = floor(p);
   float3 f = fract(p);
   float d = 1.0;
