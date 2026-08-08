@@ -2,7 +2,7 @@ name: verify-msl
 
 on:
   push:
-    paths: ["msl/**", "glsl/**", "scripts/verify-metal.sh"]
+    paths: ["msl/**", "glsl/**", "scripts/verify-metal.sh", "scripts/verify-mtlx-metal.sh"]
   workflow_dispatch:
 
 jobs:
@@ -20,6 +20,9 @@ jobs:
         run: bash scripts/verify-metal.sh
         env:
           ARTIFACT_DIR: ${{ github.workspace }}/metallib
+
+      - name: Compile MaterialX MSL (compile-only gate)
+        run: bash scripts/verify-mtlx-metal.sh
 
       - name: Upload metallib artifact
         uses: actions/upload-artifact@v4
