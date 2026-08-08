@@ -38,7 +38,7 @@ struct VSOut {
   float2 uv;
 };
 
-vertex VSOut vsMain(uint vertexID [[vertex_id]]) {
+vertex VSOut vsMainSoft(uint vertexID [[vertex_id]]) {
   float2 uv = float2((vertexID == 0) ? 0.0 : ((vertexID == 1) ? 2.0 : 0.0),
                      (vertexID == 0) ? 1.0 : 0.0);
   float2 pos = uv * 2.0 - 1.0;
@@ -50,7 +50,7 @@ vertex VSOut vsMain(uint vertexID [[vertex_id]]) {
   return o;
 }
 
-fragment float4 fsMain(VSOut in [[stage_in]],
+fragment float4 fsSoft(VSOut in [[stage_in]],
                        constant SoftUniforms& u [[buffer(0)]]) {
   const float2 uv = in.uv;
   const float aspect = u.u_aspect;

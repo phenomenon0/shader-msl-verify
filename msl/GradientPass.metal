@@ -162,7 +162,7 @@ vertex VSOut vsMainG(uint vertexID [[vertex_id]]) {
   return o;
 }
 
-fragment float4 fsMain(VSOut in [[stage_in]],
+fragment float4 fsGradientPass(VSOut in [[stage_in]],
                        constant GradientPassUniforms& u [[buffer(0)]]) {
   // ---- coordinate setup ----
   const float2 uv = in.uv;
