@@ -39,14 +39,12 @@ struct VSOut {
 };
 
 vertex VSOut vsMainSoft(uint vertexID [[vertex_id]]) {
-  float2 uv = float2((vertexID == 0) ? 0.0 : ((vertexID == 1) ? 2.0 : 0.0),
-                     (vertexID == 0) ? 1.0 : 0.0);
+  float2 uv = float2((vertexID == 1) ? 2.0 : 0.0,
+                     (vertexID == 2) ? 2.0 : 0.0);
   float2 pos = uv * 2.0 - 1.0;
-  pos.y = 1.0 - pos.y; // GL uv convention: v_uv.y up
   VSOut o;
   o.position = float4(pos, 0.0, 1.0);
-  o.uv = float2((vertexID == 0) ? 0.0 : ((vertexID == 1) ? 2.0 : 0.0),
-                (vertexID == 0) ? 0.0 : 1.0);
+  o.uv = uv; // == pos * 0.5 + 0.5, matching the GL v_uv (y up)
   return o;
 }
 

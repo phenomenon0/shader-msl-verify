@@ -153,12 +153,12 @@ struct VSOut {
 };
 
 vertex VSOut vsMainG(uint vertexID [[vertex_id]]) {
-  float2 uv = float2((vertexID == 0) ? 0.0 : ((vertexID == 1) ? 2.0 : 0.0),
-                     (vertexID == 0) ? 0.0 : 1.0);
+  float2 uv = float2((vertexID == 1) ? 2.0 : 0.0,
+                     (vertexID == 2) ? 2.0 : 0.0);
   float2 pos = uv * 2.0 - 1.0;
   VSOut o;
-  o.position = float4(pos.x, -pos.y, 0.0, 1.0);
-  o.uv = uv;
+  o.position = float4(pos, 0.0, 1.0);
+  o.uv = uv; // == pos * 0.5 + 0.5, matching the GL v_uv (y up)
   return o;
 }
 
