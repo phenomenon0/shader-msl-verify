@@ -5,8 +5,10 @@
 #
 # Upstream generated-code quirks this gate patches (transparently, before
 # compiling):
-#   * `__METAL__` is defined by the generated file itself — no -D needed.
+#   * `#define __METAL__` collides with the compiler's own built-in define.
 #   * `#define M_PI ...` appears twice; keep only the first (platform M_PI_F).
+#     The match must require a boundary after M_PI — without it the pattern
+#     also swallows `#define M_PI_INV`, which pbrlib then can't resolve.
 #   * a few unused locals inside pbrlib branches (-Wunused-variable).
 set -euo pipefail
 
@@ -20,8 +22,13 @@ for f in msl/mtlx/*.metal; do
   [ -e "$f" ] || continue
   base="$(basename "$f" .metal)"
   work="$OUT/$base.metal"
-  # keep only the FIRST '#define M_PI' (generator emits a duplicate later)
-  awk 'BEGIN{seen=0} /^[[:space:]]*#define[[:space:]]+M_PI/{if(seen)next; seen=1} {print}' "$f" > "$work"
+  # drop the file's own '#define __METAL__'; keep only the FIRST '#define M_PI'
+  awk '
+    BEGIN { seen = 0 }
+    /^[[:space:]]*#define[[:space:]]+__METAL__([[:space:]]|$)/ { next }
+    /^[[:space:]]*#define[[:space:]]+M_PI([[:space:]]|$)/ { if (seen) next; seen = 1 }
+    { print }
+  ' "$f" > "$work"
   echo "== compile: $f"
   xcrun -sdk "$SDK" metal "${FLAGS[@]}" "$work" -o "$OUT/$base.air"
   count=$((count+1))
